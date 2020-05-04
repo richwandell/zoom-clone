@@ -1,0 +1,45 @@
+@import "~@blueprintjs/core";
+
+#app-controls {
+  position: fixed;
+  bottom: 0;
+
+  .app-controls-button {
+    cursor: pointer;
+    text-align: center;
+    width: 80px;
+
+    .bp3-icon {
+      margin-top: 10px;
+    }
+  }
+}
+
+#mid-frame {
+  position: fixed;
+  width: 100%;
+  height: calc(100% - 50px);
+  margin: 0;
+  padding: 0;
+
+  > div {
+    background: black;
+    text-align: center;
+    position: relative;
+
+    video, canvas {
+      width: 100%;
+      position: absolute;
+      top: 50%;
+      left: 0;
+      transform: translate(0px, -50%);
+    }
+  }
+}
+
+#meeting-id-menu {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  left: 50%;
+}

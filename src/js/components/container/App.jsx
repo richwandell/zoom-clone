@@ -17,6 +17,11 @@ export default function App() {
         // } catch (e) {
         //     onAddIceCandidateError(pc, e);
         // }
+        try {
+            await state.pc2.addIceCandidate(event.candidate);
+        }catch(e) {
+            console.error(e);
+        }
         console.log(`${name} ICE candidate:\n${event.candidate ? event.candidate.candidate : '(null)'}`);
     }
 
@@ -56,25 +61,24 @@ export default function App() {
 
         state.socket.on('join-meeting', (response) => {
             (async () => {
-                const videoTracks = state.user_video_stream.getVideoTracks();
-                const audioTracks = state.user_video_stream.getAudioTracks();
-                const pc1 = new RTCPeerConnection();
-                const rtcSessionDescriptionInit = await pc1.createOffer({
-                    offerToReceiveAudio: 1,
-                    offerToReceiveVideo: 1
-                });
-                await pc1.setLocalDescription(rtcSessionDescriptionInit);
-                pc1.addEventListener('icecandidate', e => onIceCandidate('pc1', pc1, e));
-                state.socket.emit('offer', state.meeting_id, rtcSessionDescriptionInit);
-                pc1.addEventListener('iceconnectionstatechange', e => onIceStateChange('pc1', pc1, e));
 
-                const pc2 = new RTCPeerConnection()
-                await pc2.setRemoteDescription(response.offer);
-                pc2.addEventListener('icecandidate', e => onIceCandidate('pc2', pc2, e));
-                pc2.addEventListener('iceconnectionstatechange', e => onIceStateChange('pc2', pc2, e));
-                pc2.addEventListener('track', gotRemoteStream);
-
-                dispatch(setConnections(pc1, pc2));
+                if (!response.success) {
+                    const videoTracks = state.user_video_stream.getVideoTracks();
+                    const audioTracks = state.user_video_stream.getAudioTracks();
+                    const rtcSessionDescriptionInit = await state.pc1.createOffer({
+                        offerToReceiveAudio: 1,
+                        offerToReceiveVideo: 1
+                    });
+                    await state.pc1.setLocalDescription(rtcSessionDescriptionInit);
+                    state.pc1.addEventListener('icecandidate', e => onIceCandidate('pc1', state.pc1, e));
+                    state.socket.emit('offer', state.meeting_id, rtcSessionDescriptionInit);
+                    state.pc1.addEventListener('iceconnectionstatechange', e => onIceStateChange('pc1', state.pc1, e));
+                } else {
+                    await state.pc2.setRemoteDescription(response.offer);
+                    state.pc2.addEventListener('icecandidate', e => onIceCandidate('pc2', state.pc2, e));
+                    state.pc2.addEventListener('iceconnectionstatechange', e => onIceStateChange('pc2', state.pc2, e));
+                    state.pc2.addEventListener('track', gotRemoteStream);
+                }
             })();
         })
     }, [state.server_connected, state.meeting_id, state.user_video_stream]);

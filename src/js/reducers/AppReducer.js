@@ -5,8 +5,8 @@ export const appInitialState = {
     socket: null,
     server_connected: false,
     user_video_stream: null,
-    pc1: null,
-    pc2: null
+    pc1: new RTCPeerConnection(),
+    pc2: new RTCPeerConnection()
 };
 
 export function appReducer(state, action) {

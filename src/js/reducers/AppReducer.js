@@ -1,26 +1,49 @@
-import {SERVER_CONNECTED, SET_CONNECTIONS, SET_MEETING_ID, SET_USER_VIDEO_STREAM} from "../constants";
+import {
+    SERVER_CONNECTED,
+    SET_LOCAL_PEER,
+    SET_MEETING_ID,
+    SET_PEER_VIDEO,
+    SET_REMOTE_PEERS,
+    SET_USER_VIDEO
+} from "../constants";
 
 export const appInitialState = {
     meeting_id: '',
     socket: null,
     server_connected: false,
     user_video_stream: null,
-    pc1: new RTCPeerConnection(),
-    pc2: new RTCPeerConnection()
+    user_video_element: null,
+    peer_video_stream: null,
+    peer_video_element: null,
+    local_peer: null,
+    remote_peers: {}
 };
 
 export function appReducer(state, action) {
     switch(action.type) {
-        case SET_CONNECTIONS:
+        case SET_REMOTE_PEERS:
             return {
                 ...state,
-                ...action.payload
+                remote_peers: action.payload
             }
 
-        case SET_USER_VIDEO_STREAM:
+        case SET_LOCAL_PEER:
             return {
                 ...state,
-                user_video_stream: action.payload
+                local_peer: action.payload
+            }
+
+        case SET_USER_VIDEO:
+            return {
+                ...state,
+                user_video_stream: action.payload.stream,
+                user_video_element: action.payload.element
+            };
+
+        case SET_PEER_VIDEO:
+            return {
+                ...state,
+                peer_video_element: action.payload
             };
 
         case SET_MEETING_ID:

@@ -1,78 +1,26 @@
-const server = require('http').createServer();
-
+const express = require('express');
+const app = express();
+const server = require('http').Server(app);
 const io = require('socket.io')(server, {
     path: '/video'
 });
+const JoinMeetingOffer = require("./actions/JoinMeetingOffer");
+const JoinMeetingAnswer = require("./actions/JoinMeetingAnswer");
+const Disconnect = require("./actions/Disconnect");
+const State = require("./core/State");
+const state = new State();
 
-const meetings = {};
-const nonMeetingClients = {};
-
+app.use(express.static('../build'))
 
 io.on('connection', client => {
+    state.addNonMeetingClient(client);
 
-    nonMeetingClients[client.id] = client;
-
-    client.on('offer', (meetingId, offer) => {
-        meetings[meetingId] = {
-            'participants': [client],
-            'offer': offer,
-            'owner': client.id
-        }
-        client.meeting_id = meetingId;
-        nonMeetingClients[client.id] = undefined;
-        delete nonMeetingClients[client.id];
-        console.log(meetingId, offer)
-    });
-
-    client.on('join-meeting', meetingId => {
-        if (
-            typeof meetings[meetingId] !== "undefined"
-            && meetings[meetingId].participants.length > 0
-        ) {
-            meetings[meetingId].participants.push(client);
-            client.meeting_id = meetingId;
-            nonMeetingClients[client.id] = undefined;
-            delete nonMeetingClients[client.id];
-            client.emit('join-meeting', {
-                success: true,
-                offer: meetings[meetingId].offer
-            });
-        } else {
-            client.emit('join-meeting', {
-                success: false,
-                meetingId
-            });
-        }
-    })
-
+    client.on('join-meeting-offer', (meetingId, offer) => new JoinMeetingOffer(client, state).run(meetingId, offer));
+    client.on('join-meeting-answer', (meetingId, answer) => new JoinMeetingAnswer(client, state).run(meetingId, answer));
     client.on('message', data => {
         console.log(data)
     });
-
-    function removeAllFromMeeting(id) {
-        for(let c of meetings[id].participants){
-            c.emit('leave-meeting')
-        }
-        delete meetings[id];
-    }
-
-    client.on('disconnect', () => {
-        delete nonMeetingClients[client.id];
-        if (typeof client.meeting_id !== "undefined") {
-            if (typeof meetings[client.meeting_id] !== "undefined") {
-                let index = meetings[client.meeting_id].participants.indexOf(client);
-                if (index > -1) {
-                    meetings[client.meeting_id].participants = meetings[client.meeting_id].participants
-                        .slice(0, index)
-                        .concat(meetings[client.meeting_id].participants.slice(index + 1));
-                }
-                if (meetings[client.meeting_id].owner === client.id) {
-                    removeAllFromMeeting(client.meeting_id);
-                }
-            }
-        }
-        console.log('disconnect')
-    });
+    client.on('disconnect', () => new Disconnect(client, state).run());
 });
 
 server.listen(3001);

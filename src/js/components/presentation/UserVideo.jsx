@@ -1,6 +1,6 @@
 import React, {useContext, useEffect} from "react";
 import {AppContext} from "../Context";
-import {setUserVideoStream} from "../../actions/AppActions";
+import {setUserVideo} from "../../actions/AppActions";
 
 export default React.memo(function UserVideo(props) {
 
@@ -8,13 +8,13 @@ export default React.memo(function UserVideo(props) {
 
     useEffect(() => {
         if (state.user_video_stream !== null) return;
-        const video = document.querySelector('video');
+        const video = document.querySelector('#user-video');
         navigator.mediaDevices.getUserMedia({
-            audio: false,
+            audio: true,
             video: true
         }).then((stream) => {
             video.srcObject = stream;
-            dispatch(setUserVideoStream(stream))
+            dispatch(setUserVideo(stream, video))
         }).catch((error) => {
             console.log('navigator.MediaDevices.getUserMedia error: ', error.message, error.name);
         });
@@ -23,9 +23,9 @@ export default React.memo(function UserVideo(props) {
 
     return (
         <React.Fragment>
-            <video id={"user-video"} playsInline autoPlay/>
+            <video id={"user-video"} playsInline autoPlay muted/>
         </React.Fragment>
     )
 }, (prevProps, nextProps) => {
-    return prevProps.user_video_stream?.id === nextProps.user_video_stream.id;
+    return prevProps.user_video_stream?.id === nextProps.user_video_stream?.id;
 });

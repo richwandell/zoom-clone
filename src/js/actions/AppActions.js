@@ -1,4 +1,11 @@
-import {SERVER_CONNECTED, SET_CONNECTIONS, SET_MEETING_ID, SET_USER_VIDEO_STREAM} from "../constants";
+import {
+    SERVER_CONNECTED,
+    SET_LOCAL_PEER,
+    SET_MEETING_ID,
+    SET_PEER_VIDEO,
+    SET_REMOTE_PEERS,
+    SET_USER_VIDEO
+} from "../constants";
 
 export function serverConnected(socket) {
     return {type: SERVER_CONNECTED, payload: socket}
@@ -8,10 +15,18 @@ export function setMeetingId(meetingId) {
     return {type: SET_MEETING_ID, payload: meetingId};
 }
 
-export function setUserVideoStream(stream) {
-    return {type: SET_USER_VIDEO_STREAM, payload: stream};
+export function setUserVideo(stream, element) {
+    return {type: SET_USER_VIDEO, payload: {stream, element}};
 }
 
-export function setConnections(pc1, pc2) {
-    return {type: SET_CONNECTIONS, payload: {pc1, pc2}};
+export function setPeerVideo(element) {
+    return {type: SET_PEER_VIDEO, payload: element};
+}
+
+export function setLocalPeer(localPeer) {
+    return {type: SET_LOCAL_PEER, payload: localPeer};
+}
+
+export function setRemotePeers(remotePeers) {
+    return {type: SET_REMOTE_PEERS, payload: remotePeers};
 }

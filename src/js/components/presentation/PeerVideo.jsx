@@ -1,10 +1,23 @@
-import React, {useEffect} from "react";
+import React, {useContext, useEffect} from "react";
+import {AppContext} from "../Context";
+import {setPeerVideo} from "../../actions/AppActions";
 
-export default function PeerVideo(props) {
+export default React.memo(function PeerVideo(props) {
+
+    const {state, dispatch} = useContext(AppContext);
+
     useEffect(() => {
-        const canvas = document.querySelector("#peer-video");
-    })
+        if (state.peer_video_element !== null) return;
+        const video = document.querySelector('#peer-video');
+        dispatch(setPeerVideo(video))
+    }, [state.peer_video_element])
+
+
     return (
-        <canvas id={"peer-video"} />
+        <React.Fragment>
+            <video id={"peer-video"} playsInline autoPlay/>
+        </React.Fragment>
     )
-}
+}, (prevProps, nextProps) => {
+    return prevProps.peer_video_element === nextProps.peer_video_element;
+});

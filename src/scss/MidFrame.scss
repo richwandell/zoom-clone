@@ -1,0 +1,23 @@
+#mid-frame {
+  position: fixed;
+  width: 100%;
+  height: calc(100% - 50px);
+  margin: 0;
+  padding: 0;
+  background: black;
+  display: flex;
+
+  > div {
+    background: black;
+    text-align: center;
+    position: relative;
+
+    video, canvas {
+      width: 100%;
+      position: absolute;
+      top: 50%;
+      left: 0;
+      transform: translate(0px, -50%);
+    }
+  }
+}

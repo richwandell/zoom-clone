@@ -1,23 +1,31 @@
-import React, {useContext, useEffect} from "react";
+import React, {useContext, useEffect, useRef} from "react";
 import {AppContext} from "../Context";
-import {setPeerVideo} from "../../actions/AppActions";
+import {setPeerVideoElement} from "../../actions/AppActions";
 
 export default React.memo(function PeerVideo(props) {
-
     const {state, dispatch} = useContext(AppContext);
+    const ref = useRef();
 
     useEffect(() => {
-        if (state.peer_video_element !== null) return;
-        const video = document.querySelector('#peer-video');
-        dispatch(setPeerVideo(video))
-    }, [state.peer_video_element])
+        if (props.peer.videoElement !== null) return;
+        dispatch(setPeerVideoElement(props.peer.id, ref.current))
+    }, [props.peer.videoElement])
 
+    useEffect(() => {
+        if (props.peer.answer === null) return;
+        state.local_peer.signal(props.peer.answer);
+    }, [props.peer.answer])
+
+    useEffect(() => {
+        if (props.peer.videoStream === null) return;
+        if (ref.current.srcObject !== props.videoStream) {
+            ref.current.srcObject = props.videoStream
+        }
+    }, [props.peer.has_video_stream])
 
     return (
-        <React.Fragment>
-            <video id={"peer-video"} playsInline autoPlay/>
-        </React.Fragment>
+        <video ref={ref} className={"peer-video"} playsInline autoPlay/>
     )
 }, (prevProps, nextProps) => {
-    return prevProps.peer_video_element === nextProps.peer_video_element;
+    return prevProps.videoStream?.id === nextProps.videoStream?.id;
 });

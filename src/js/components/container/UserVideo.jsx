@@ -1,20 +1,22 @@
-import React, {useContext, useEffect, useRef} from "react";
-import {Classes} from "@blueprintjs/core";
+import React, {useContext, useEffect} from 'react';
+import '../../../scss/App.scss';
 import {AppContext} from "../Context";
 import {setUserVideo} from "../../actions/AppActions";
+import UserVideoPresentation from "../presentation/UserVideo";
 
-export default React.memo(function UserVideo(props) {
+export default function UserVideo() {
+
     const {state, dispatch} = useContext(AppContext);
-    const ref = useRef();
 
     useEffect(() => {
         if (state.user_video_stream !== null) return;
+        const video = document.querySelector('#user-video');
         navigator.mediaDevices.getUserMedia({
             audio: true,
             video: true
         }).then((stream) => {
-            ref.current.srcObject = stream;
-            dispatch(setUserVideo(stream, ref.current))
+            video.srcObject = stream;
+            dispatch(setUserVideo(stream, video))
         }).catch((error) => {
             console.log('navigator.MediaDevices.getUserMedia error: ', error.message, error.name);
         });
@@ -23,11 +25,9 @@ export default React.memo(function UserVideo(props) {
     const loading = state.user_video_stream === null;
 
     return (
-        <video
-            ref={ref}
-            id={"user-video"}
-            className={loading ? Classes.SKELETON : ""} playsInline autoPlay muted/>
+        <UserVideoPresentation
+            loading={loading}
+            user_video_stream={state.user_video_stream}/>
     )
-}, (prevProps, nextProps) => {
-    return prevProps.user_video_stream?.id === nextProps.user_video_stream?.id;
-});
+}
+

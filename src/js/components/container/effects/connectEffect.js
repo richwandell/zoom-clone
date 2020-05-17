@@ -8,7 +8,11 @@ export default function connectEffect(state, dispatch) {
         path: '/video'
     });
 
+    socket.on('get-id', (data) => {
+        dispatch(serverConnected(data.id, socket))
+    })
+
     socket.on('connect', () => {
-        dispatch(serverConnected(socket))
+        socket.emit('get-id');
     });
 }

@@ -1,15 +1,15 @@
 import {
     REMOTE_PEER_ANSWERED,
-    SERVER_CONNECTED,
+    SERVER_CONNECTED, SET_ANSWER_ANSWERED,
     SET_LOCAL_PEER,
-    SET_MEETING_ID, SET_PEER_VIDEO_ELEMENT,
+    SET_MEETING_ID, SET_PEER_CONNECTION, SET_PEER_CONNECTIONS, SET_PEER_VIDEO_ELEMENT,
     SET_REMOTE_PEER_VIDEO_STREAM,
     SET_REMOTE_PEERS,
     SET_USER_VIDEO
 } from "../constants";
 
-export function serverConnected(socket) {
-    return {type: SERVER_CONNECTED, payload: socket}
+export function serverConnected(id, socket) {
+    return {type: SERVER_CONNECTED, payload: {id, socket}}
 }
 
 export function setMeetingId(meetingId) {
@@ -38,4 +38,12 @@ export function remotePeerAnswered(id, answer) {
 
 export function setPeerVideoElement(id, element) {
     return {type: SET_PEER_VIDEO_ELEMENT, payload: {id, element}};
+}
+
+export function setAnswerAnswered(id) {
+    return {type: SET_ANSWER_ANSWERED, payload: id};
+}
+
+export function setPeerConnections(connections) {
+    return {type: SET_PEER_CONNECTIONS, payload: connections};
 }

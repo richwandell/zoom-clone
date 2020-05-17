@@ -17,7 +17,10 @@ export default function MidFrame(props) {
             </Col>
             {state.remote_peers.map((peer, i) =>
                 <Col xs={colWidth} key={i}>
-                    <PeerVideo peer={peer} videoStream={peer.videoStream} />
+                    <PeerVideo
+                        localPeer={state.local_peers[i]}
+                        remotePeer={peer}
+                        videoStream={peer.videoStream} />
                 </Col>
             )}
         </div>

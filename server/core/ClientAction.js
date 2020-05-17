@@ -28,6 +28,9 @@ class ClientAction{
         if (typeof this.state.clientsMeetings[this.client.id] !== "undefined") {
             return this.state.meetings[this.state.clientsMeetings[this.client.id]];
         }
+        return {
+            participants: []
+        }
     }
 }
 

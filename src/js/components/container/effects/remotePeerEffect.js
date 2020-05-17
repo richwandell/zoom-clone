@@ -3,6 +3,7 @@ import {remotePeerAnswered, setRemotePeers, setRemotePeerVideoStream} from "../.
 
 export default function remotePeerEffect(state, dispatch) {
     if (state.local_peer === null) return;
+    if (state.socket === null) return;
 
     state.socket.on('peers-joined', (response) => {
         if (!(response.offers && response.offers.length > 0)) return;
@@ -35,7 +36,7 @@ export default function remotePeerEffect(state, dispatch) {
             })
 
             remotePeer.on('error', (err) => {
-                console.log("remote peer error", err)
+                console.error(err)
             })
 
             remotePeer.signal(offer.offer)
@@ -58,12 +59,7 @@ export default function remotePeerEffect(state, dispatch) {
         if (!(response.answers && response.answers.length > 0)) return;
 
         for (let answer of response.answers) {
-            dispatch(remotePeerAnswered(answer.id, answer.answer))
-            // try {
-            //     state.local_peer.signal(answer.answer);
-            // }catch(e) {
-            //     console.error(e);
-            // }
+            dispatch(remotePeerAnswered(answer.id, answer.answer));
         }
     })
 }

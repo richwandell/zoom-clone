@@ -1,31 +1,38 @@
 import React, {useContext, useEffect, useRef} from "react";
 import {AppContext} from "../Context";
-import {setPeerVideoElement} from "../../actions/AppActions";
+import {setAnswerAnswered, setPeerVideoElement} from "../../actions/AppActions";
+import {Classes} from "@blueprintjs/core";
 
-export default React.memo(function PeerVideo(props) {
+export default function PeerVideo(props) {
     const {state, dispatch} = useContext(AppContext);
     const ref = useRef();
 
     useEffect(() => {
-        if (props.peer.videoElement !== null) return;
-        dispatch(setPeerVideoElement(props.peer.id, ref.current))
-    }, [props.peer.videoElement])
+        if (props.remotePeer.videoElement !== null) return;
+        dispatch(setPeerVideoElement(props.remotePeer.id, ref.current))
+    }, [props.remotePeer.videoElement])
 
     useEffect(() => {
-        if (props.peer.answer === null) return;
-        state.local_peer.signal(props.peer.answer);
-    }, [props.peer.answer])
-
-    useEffect(() => {
-        if (props.peer.videoStream === null) return;
-        if (ref.current.srcObject !== props.videoStream) {
-            ref.current.srcObject = props.videoStream
+        if (props.remotePeer.videoStream === null) return;
+        if (ref.current.srcObject !== props.remotePeer.videoStream) {
+            ref.current.srcObject = props.remotePeer.videoStream
         }
-    }, [props.peer.has_video_stream])
+    }, [props.remotePeer.has_video_stream])
+
+    useEffect(() => {
+        if (props.remotePeer.answer === null) return;
+        if (!props.remotePeer.has_video_stream) return;
+        if (props.remotePeer.videoElement === null) return;
+        if (props.remotePeer.answer.answered === true) return;
+        console.log("working")
+
+        props.localPeer.signal(props.remotePeer.answer);
+        dispatch(setAnswerAnswered(props.remotePeer.id));
+    }, [props.remotePeer.answer, props.remotePeer.has_video_stream, props.remotePeer.videoElement])
+
+    const loading = props.remotePeer.has_video_stream && props.remotePeer.answer !== null;
 
     return (
-        <video ref={ref} className={"peer-video"} playsInline autoPlay/>
+        <video ref={ref} className={loading ? Classes.SKELETON : "peer-video"} playsInline autoPlay/>
     )
-}, (prevProps, nextProps) => {
-    return prevProps.videoStream?.id === nextProps.videoStream?.id;
-});
+};

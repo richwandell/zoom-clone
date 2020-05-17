@@ -4,6 +4,7 @@ const server = require('http').Server(app);
 const io = require('socket.io')(server, {
     path: '/video'
 });
+const JoinMeeting = require("./actions/JoinMeeting");
 const JoinMeetingOffer = require("./actions/JoinMeetingOffer");
 const JoinMeetingAnswer = require("./actions/JoinMeetingAnswer");
 const Disconnect = require("./actions/Disconnect");
@@ -15,8 +16,14 @@ app.use(express.static('../build'))
 io.on('connection', client => {
     state.addNonMeetingClient(client);
 
-    client.on('join-meeting-offer', (meetingId, offer) => new JoinMeetingOffer(client, state).run(meetingId, offer));
-    client.on('join-meeting-answer', (meetingId, answer) => new JoinMeetingAnswer(client, state).run(meetingId, answer));
+    client.on('get-id', () => {
+        client.emit('get-id', {
+            id: client.id
+        })
+    })
+    client.on('join-meeting', (meetingId) => new JoinMeeting(client, state).run(meetingId))
+    client.on('join-meeting-offer', (meetingId, participant, offer) => new JoinMeetingOffer(client, state).run(meetingId, participant, offer));
+    client.on('join-meeting-answer', (meetingId, participant, answer) => new JoinMeetingAnswer(client, state).run(meetingId, participant, answer));
     client.on('message', data => {
         console.log(data)
     });

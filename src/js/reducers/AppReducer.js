@@ -56,6 +56,88 @@ export const appInitialState = {
     remote_peers: []
 };
 
+function joinMeeting(state, action) {
+    const newLocalPeers = state.local_peers.slice();
+    const newRemotePeers = state.remote_peers.slice();
+    for(let participant of action.payload) {
+        if (participant === state.server_id) continue;
+        const existingLocalPeer = state.local_peers.find((p) => p.id === participant);
+        const existingRemotePeer = state.remote_peers.find((p) => p.id === participant);
+        if (existingLocalPeer !== undefined || existingRemotePeer !== undefined) continue;
+
+        const localPeer = new SimplePeer({
+            initiator: true,
+            trickle: false,
+            stream: state.user_video_stream
+        });
+
+        const remotePeer = new SimplePeer({
+            initiator: false,
+            trickle: false
+        });
+
+        newLocalPeers.push({
+            id: participant,
+            peer: localPeer
+        });
+        newRemotePeers.push({
+            id: participant,
+            peer: remotePeer,
+            offer: null,
+            offer_signaled: false,
+            answer: null,
+            answer_signaled: false,
+            videoStream: null,
+            videoElement: null,
+            has_video_stream: false
+        });
+    }
+
+    return {
+        ...state,
+        local_peers: newLocalPeers,
+        remote_peers: newRemotePeers
+    }
+}
+
+function setAnswerAnswered(state, action) {
+    const peer = state.remote_peers.find((p) => p.id === action.payload);
+    const index = state.remote_peers.indexOf(peer);
+
+    const newPeers = state.remote_peers
+        .slice(0, index)
+        .concat([{
+            ...peer,
+            answer_signaled: true
+        }])
+        .concat(state.remote_peers.slice(index + 1));
+
+    return {
+        ...state,
+        remote_peers: newPeers
+    }
+}
+
+function remotePeerOffered(state, action){
+    const peer = state.remote_peers.find((p) => p.id === action.payload.id);
+    if (peer.offer_signaled) return state;
+
+    const index = state.remote_peers.indexOf(peer);
+
+    const newPeers = state.remote_peers
+        .slice(0, index)
+        .concat([{
+            ...peer,
+            offer: action.payload.offer
+        }])
+        .concat(state.remote_peers.slice(index + 1));
+
+    return {
+        ...state,
+        remote_peers: newPeers
+    }
+}
+
 /**
  *
  * @param {AppState} state
@@ -66,68 +148,10 @@ export function appReducer(state, action) {
     console.log(action.type)
     switch(action.type) {
         case JOIN_MEETING:
-            return (() => {
-                const newLocalPeers = state.local_peers.slice();
-                const newRemotePeers = state.remote_peers.slice();
-                for(let participant of action.payload) {
-                    if (participant === state.server_id) continue;
-                    const existingLocalPeer = state.local_peers.find((p) => p.id === participant);
-                    const existingRemotePeer = state.remote_peers.find((p) => p.id === participant);
-                    if (existingLocalPeer !== undefined || existingRemotePeer !== undefined) continue;
-
-                    const localPeer = new SimplePeer({
-                        initiator: true,
-                        trickle: false,
-                        stream: state.user_video_stream
-                    });
-
-                    const remotePeer = new SimplePeer({
-                        initiator: false,
-                        trickle: false
-                    });
-
-                    newLocalPeers.push({
-                        id: participant,
-                        peer: localPeer
-                    });
-                    newRemotePeers.push({
-                        id: participant,
-                        peer: remotePeer,
-                        offer: null,
-                        offer_signaled: false,
-                        answer: null,
-                        answer_signaled: false,
-                        videoStream: null,
-                        videoElement: null,
-                        has_video_stream: false
-                    });
-                }
-
-                return {
-                    ...state,
-                    local_peers: newLocalPeers,
-                    remote_peers: newRemotePeers
-                }
-            })();
+            return joinMeeting(state, action);
 
         case SET_ANSWER_ANSWERED:
-            return (() => {
-                const peer = state.remote_peers.find((p) => p.id === action.payload);
-                const index = state.remote_peers.indexOf(peer);
-
-                const newPeers = state.remote_peers
-                    .slice(0, index)
-                    .concat([{
-                        ...peer,
-                        answer_signaled: true
-                    }])
-                    .concat(state.remote_peers.slice(index + 1));
-
-                return {
-                    ...state,
-                    remote_peers: newPeers
-                }
-            })();
+            return setAnswerAnswered(state, action);
 
         case SET_OFFER_SIGNALED:
             return (() => {
@@ -168,25 +192,7 @@ export function appReducer(state, action) {
             })();
 
         case REMOTE_PEER_OFFERED:
-            return (() => {
-                const peer = state.remote_peers.find((p) => p.id === action.payload.id);
-                if (peer.offer?.offered) return state;
-
-                const index = state.remote_peers.indexOf(peer);
-
-                const newPeers = state.remote_peers
-                    .slice(0, index)
-                    .concat([{
-                        ...peer,
-                        offer: action.payload.offer
-                    }])
-                    .concat(state.remote_peers.slice(index + 1));
-
-                return {
-                    ...state,
-                    remote_peers: newPeers
-                }
-            })();
+            return remotePeerOffered(state, action);
 
         case REMOTE_PEER_ANSWERED:
             return (() => {

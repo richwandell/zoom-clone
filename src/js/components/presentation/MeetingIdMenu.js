@@ -6,7 +6,7 @@ import {setMeetingId} from "../../actions/AppActions";
 export default function MeetingIdMenu(props) {
 
     const [meetingId, setLocalMeetingId] = useState('');
-    const {state, dispatch} = useContext(AppContext);
+    const {dispatch} = useContext(AppContext);
 
     const formSubmitted = function (e) {
         e.stopPropagation();

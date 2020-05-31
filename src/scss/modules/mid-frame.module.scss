@@ -1,0 +1,29 @@
+.midFrameContainer {
+  position: fixed;
+  width: 100%;
+  height: calc(100% - 50px);
+  margin: 0;
+  padding: 0;
+  background: black;
+
+  .midFrame{
+    position: absolute;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    background: black;
+    top: 50%;
+    transform: translate(0px, -50%);
+
+    .videoRow {
+      background: black;
+      text-align: center;
+      position: relative;
+
+      video, canvas {
+        width: 100%;
+        left: 0;
+      }
+    }
+  }
+}

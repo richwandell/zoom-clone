@@ -12,7 +12,7 @@ export default function App() {
 
     useEffect(() => connectEffect(state, dispatch), [state.server_connected]);
     useEffect(() => meetingEffect(state, dispatch), [state.server_connected, state.meeting_id, state.user_video_stream]);
-    useEffect(() => peerConnectionEffect(state, dispatch), [state.remote_peers.length]);
+    useEffect(() => peerConnectionEffect(state, dispatch), [state.remote_peers.length]); 
 
     return (
         <PresentationApp {...{

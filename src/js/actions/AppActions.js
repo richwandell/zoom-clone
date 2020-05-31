@@ -1,8 +1,9 @@
 import {
-    REMOTE_PEER_ANSWERED,
+    JOIN_MEETING,
+    REMOTE_PEER_ANSWERED, REMOTE_PEER_OFFERED,
     SERVER_CONNECTED, SET_ANSWER_ANSWERED,
     SET_LOCAL_PEER,
-    SET_MEETING_ID, SET_PEER_CONNECTION, SET_PEER_CONNECTIONS, SET_PEER_VIDEO_ELEMENT,
+    SET_MEETING_ID, SET_OFFER_SIGNALED, SET_PEER_CONNECTION, SET_PEER_CONNECTIONS, SET_PEER_VIDEO_ELEMENT,
     SET_REMOTE_PEER_VIDEO_STREAM,
     SET_REMOTE_PEERS,
     SET_USER_VIDEO
@@ -32,6 +33,10 @@ export function setRemotePeerVideoStream(id, stream) {
     return {type: SET_REMOTE_PEER_VIDEO_STREAM, payload: {id, stream}};
 }
 
+export function remotePeerOffered(id, offer) {
+    return {type: REMOTE_PEER_OFFERED, payload: {id, offer}};
+}
+
 export function remotePeerAnswered(id, answer) {
     return {type: REMOTE_PEER_ANSWERED, payload: {id, answer}};
 }
@@ -46,4 +51,12 @@ export function setAnswerAnswered(id) {
 
 export function setPeerConnections(connections) {
     return {type: SET_PEER_CONNECTIONS, payload: connections};
+}
+
+export function setOfferSignaled(id) {
+    return {type: SET_OFFER_SIGNALED, payload: id};
+}
+
+export function joinMeeting(participantIds) {
+    return {type: JOIN_MEETING, payload: participantIds};
 }

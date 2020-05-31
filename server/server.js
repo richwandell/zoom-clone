@@ -23,7 +23,7 @@ io.on('connection', client => {
     })
     client.on('join-meeting', (meetingId) => new JoinMeeting(client, state).run(meetingId))
     client.on('join-meeting-offer', (meetingId, participant, offer) => new JoinMeetingOffer(client, state).run(meetingId, participant, offer));
-    client.on('join-meeting-answer', (meetingId, participant, answer) => new JoinMeetingAnswer(client, state).run(meetingId, participant, answer));
+    client.on('join-meeting-answer', (participant, answer) => new JoinMeetingAnswer(client, state).run(participant, answer));
     client.on('message', data => {
         console.log(data)
     });

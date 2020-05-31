@@ -42,5 +42,6 @@
     "node-sass": "^4.14.0",
     "react-flexbox-grid": "^2.1.2",
     "socket.io-client": "^2.3.0"
-  }
+  },
+  "proxy": "http://localhost:3001"
 }

@@ -23,6 +23,13 @@
     &:hover {
       background: rgba(138, 155, 168, 0.15);
     }
+    &.muted {
+      color: red;
+
+      svg {
+        fill: red;
+      }
+    }
   }
 }
 

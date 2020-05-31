@@ -3,7 +3,7 @@ import {serverConnected} from "../../../actions/AppActions";
 
 export default function connectEffect(state, dispatch) {
     if (state.server_connected) return;
-    const location = window.location.port === "3000" ? "http://localhost:3001" : window.location.host;
+    const location = window.location.host;
     const socket = io(location, {
         path: '/video'
     });

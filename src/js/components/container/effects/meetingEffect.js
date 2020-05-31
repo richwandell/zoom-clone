@@ -1,11 +1,4 @@
-import io from "socket.io-client";
-import {
-    remotePeerAnswered,
-    serverConnected,
-    setLocalPeer,
-    setPeerConnection, setPeerConnections,
-    setRemotePeerVideoStream
-} from "../../../actions/AppActions";
+import {setPeerConnections} from "../../../actions/AppActions";
 import SimplePeer from "simple-peer";
 
 export default function meetingEffect(state, dispatch) {

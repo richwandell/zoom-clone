@@ -61,6 +61,7 @@ export const appInitialState = {
  * @returns AppState
  */
 export function appReducer(state, action) {
+    console.log(action.type)
     switch(action.type) {
         case SET_PEER_CONNECTIONS:
             return (() => {

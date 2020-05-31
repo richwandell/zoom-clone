@@ -1,22 +1,5 @@
 @import "~@blueprintjs/core";
 
-#app-controls {
-  position: fixed;
-  bottom: 0;
-
-  .app-controls-button {
-    cursor: pointer;
-    text-align: center;
-    width: 80px;
-
-    .bp3-icon {
-      margin-top: 10px;
-    }
-  }
-}
-
-
-
 #meeting-id-menu {
   position: absolute;
   top: 50%;

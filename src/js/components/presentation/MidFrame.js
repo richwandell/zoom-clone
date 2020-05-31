@@ -2,7 +2,7 @@ import {Col, Row} from "react-flexbox-grid";
 import React, {useContext} from "react";
 import UserVideo from "./UserVideo";
 import PeerVideo from "./PeerVideo";
-import {AppContext} from "../Context";
+import {AppContext} from "../context/AppContext";
 
 export default function MidFrame(props) {
     const {state, dispatch} = useContext(AppContext);

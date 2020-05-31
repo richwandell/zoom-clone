@@ -1,0 +1,28 @@
+.appControls {
+  position: fixed;
+  bottom: 0;
+
+  .appControlsButton {
+    cursor: pointer;
+    text-align: center;
+    width: 80px;
+    padding-top: 7px;
+    height: 100%;
+
+    .bp3Icon {
+      margin: 0;
+      padding: 0;
+      height: 20px;
+
+      svg {
+        height: 20px;
+        fill: white;
+      }
+    }
+
+    &:hover {
+      background: rgba(138, 155, 168, 0.15);
+    }
+  }
+}
+

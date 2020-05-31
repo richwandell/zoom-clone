@@ -8,11 +8,11 @@ class Disconnect extends ClientAction {
     }
 
     run() {
+        console.log('disconnect')
         this.removeNonMeetingClient();
         if (this.inMeeting()) {
             this.state.removeFromMeeting(this.client);
         }
-        console.log('disconnect')
     }
 }
 

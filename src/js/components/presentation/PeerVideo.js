@@ -1,5 +1,5 @@
 import React, {useContext, useEffect, useRef} from "react";
-import {AppContext} from "../Context";
+import {AppContext} from "../context/AppContext";
 import {setAnswerAnswered, setPeerVideoElement} from "../../actions/AppActions";
 import {Classes} from "@blueprintjs/core";
 

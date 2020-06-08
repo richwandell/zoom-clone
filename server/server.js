@@ -30,4 +30,4 @@ io.on('connection', client => {
     client.on('disconnect', () => new Disconnect(client, state).run());
 });
 
-server.listen(3001);
+server.listen(3001, "0.0.0.0");

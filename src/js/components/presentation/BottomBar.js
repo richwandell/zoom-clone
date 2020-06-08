@@ -1,81 +1,37 @@
+import Styles from "../../../scss/modules/bottom-bar.module.scss";
 import {Alignment, Button, Icon, Navbar} from "@blueprintjs/core";
-import React, {useState} from "react";
-import Styles from "../../../scss/modules/bottom-bar.module.scss"
-import MicIcon from "../../../images/mic-24px.svg"
 import InlineSVG from "react-inlinesvg";
+import MicIcon from "../../../images/mic-24px.svg";
+import React from "react";
 
 export default function BottomBar(props) {
-
-    const [audioOn, setAudioOn] = useState(true);
-    const [videoOn, setVideoOn] = useState(true);
-
-    const toggleAudio = function () {
-        if (props.user_video_element === null) return;
-
-        if (audioOn) {
-            props.user_video_element.srcObject.getTracks()
-                .map((t) => {
-                    if (t.kind === "audio"){
-                        t.enabled = false
-                    }
-                })
-        } else {
-            props.user_video_element.srcObject.getTracks()
-                .map((t) => {
-                    if (t.kind === "audio"){
-                        t.enabled = true
-                    }
-                })
-        }
-        setAudioOn(!audioOn);
-    }
-
-    const toggleVideo = function () {
-        if (props.user_video_element === null) return;
-
-        if (videoOn) {
-            props.user_video_element.srcObject.getTracks()
-                .map((t) => {
-                    if (t.kind === "video"){
-                        t.enabled = false
-                    }
-                })
-        } else {
-            props.user_video_element.srcObject.getTracks()
-                .map((t) => {
-                    if (t.kind === "video"){
-                        t.enabled = true
-                    }
-                })
-        }
-        setVideoOn(!videoOn);
-    }
-
     return (
         <Navbar className={Styles.appControls}>
             <Navbar.Group align={Alignment.LEFT}>
-                <div className={Styles.appControlsButton + " " + (!audioOn ? Styles.muted : "")}
-                     onClick={(e) => toggleAudio()}>
+                <div className={Styles.appControlsButton + " " + (!props.audioOn ? Styles.muted : "")}
+                     onClick={(e) => props.toggleAudio()}>
                     <span className={"bp3-icon " + Styles.bp3Icon}>
                         <InlineSVG src={MicIcon} />
                     </span>
                     <div>
-                        <p>Mute</p>
+                        <p>Audio</p>
                     </div>
                 </div>
                 <Navbar.Divider/>
-                <div className={Styles.appControlsButton + " " + (!videoOn ? Styles.muted : "")}
-                    onClick={(e) => toggleVideo()}>
+                <div className={Styles.appControlsButton + " " + (!props.videoOn ? Styles.muted : "")}
+                     onClick={(e) => props.toggleVideo()}>
                     <Icon className={Styles.bp3Icon} icon={"video"}/>
                     <div>
                         <p>Video</p>
                     </div>
                 </div>
                 <Navbar.Divider/>
-                <div className={Styles.appControlsButton}>
+                <div className={Styles.appControlsButton}
+                     onClick={() => props.toggleScreenShare()}>
                     <Icon className={Styles.bp3Icon} icon={"desktop"}/>
                     <div>
-                        <p>Share Screen</p>
+                        {props.screenShareOn ?
+                        <p>Stop Sharing</p> : <p>Share Screen</p>}
                     </div>
                 </div>
                 <Navbar.Divider/>

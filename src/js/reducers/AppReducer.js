@@ -1,46 +1,20 @@
 import {
     JOIN_MEETING,
-    REMOTE_PEER_ANSWERED, REMOTE_PEER_OFFERED,
+    REMOTE_PEER_ANSWERED,
+    REMOTE_PEER_OFFERED,
+    REMOVE_REMOTE_PEER,
     SERVER_CONNECTED,
     SET_ANSWER_ANSWERED,
     SET_LOCAL_PEER,
-    SET_MEETING_ID, SET_OFFER_SIGNALED,
-    SET_PEER_CONNECTIONS,
+    SET_MEETING_ID,
+    SET_OFFER_SIGNALED,
     SET_PEER_VIDEO_ELEMENT,
     SET_REMOTE_PEER_VIDEO_STREAM,
     SET_REMOTE_PEERS,
-    SET_USER_VIDEO
+    SET_USER_VIDEO, TOGGLE_SCREEN_SHARE
 } from "../constants";
-import Peer from "simple-peer";
-import {Socket} from "socket.io-client";
 import SimplePeer from "simple-peer";
 
-/**
- * @typedef RemotePeer
- * @property {string} id
- * @property {Peer} remotePeer
- * @property {Object} answer
- * @property {MediaStream} videoStream
- * @property {HTMLVideoElement} videoElement
- */
-
-/**
- * @typedef LocalPeer
- * @property {string} id
- * @property {Peer} localPeer
- */
-
-/**
- * @typedef AppState
- * @property {string} meeting_id
- * @property {Socket} socket
- * @property {string} server_id
- * @property {boolean} server_connected
- * @property {MediaStream} user_video_stream
- * @property {HTMLVideoElement} user_video_element
- * @property {LocalPeer[]} local_peers
- * @property {RemotePeer[]} remote_peers
- */
 
 /**
  * @type AppState
@@ -53,9 +27,16 @@ export const appInitialState = {
     user_video_stream: null,
     user_video_element: null,
     local_peers: [],
-    remote_peers: []
+    remote_peers: [],
+    sharing_screen: false
 };
 
+/**
+ *
+ * @param {AppState} state
+ * @param action
+ * @return AppState
+ */
 function joinMeeting(state, action) {
     const newLocalPeers = state.local_peers.slice();
     const newRemotePeers = state.remote_peers.slice();
@@ -100,6 +81,12 @@ function joinMeeting(state, action) {
     }
 }
 
+/**
+ *
+ * @param {AppState} state
+ * @param action
+ * @return AppState
+ */
 function setAnswerAnswered(state, action) {
     const peer = state.remote_peers.find((p) => p.id === action.payload);
     const index = state.remote_peers.indexOf(peer);
@@ -118,6 +105,12 @@ function setAnswerAnswered(state, action) {
     }
 }
 
+/**
+ *
+ * @param {AppState} state
+ * @param action
+ * @return AppState
+ */
 function remotePeerOffered(state, action){
     const peer = state.remote_peers.find((p) => p.id === action.payload.id);
     if (peer.offer_signaled) return state;
@@ -142,11 +135,130 @@ function remotePeerOffered(state, action){
  *
  * @param {AppState} state
  * @param action
+ * @return AppState
+ */
+function removeRemotePeer(state, action) {
+    const localPeer = state.local_peers.find((p) => p.id === action.payload);
+    const remotePeer = state.remote_peers.find((p) => p.id === action.payload);
+
+    let index = state.local_peers.indexOf(localPeer);
+    const newLocalPeers = state.local_peers
+        .slice(0, index)
+        .concat(state.local_peers.slice(index + 1));
+
+    index = state.remote_peers.indexOf(remotePeer);
+    const newRemotePeers = state.remote_peers
+        .slice(0, index)
+        .concat(state.remote_peers.slice(index + 1));
+    return {
+        ...state,
+        remote_peers: newRemotePeers,
+        local_peers: newLocalPeers
+    }
+}
+
+/**
+ *
+ * @param {AppState} state
+ * @param action
+ * @return AppState
+ */
+function setOfferSignaled(state, action) {
+    const peer = state.remote_peers.find((p) => p.id === action.payload);
+    const index = state.remote_peers.indexOf(peer);
+
+    const newPeers = state.remote_peers
+        .slice(0, index)
+        .concat([{
+            ...peer,
+            offer_signaled: true
+        }])
+        .concat(state.remote_peers.slice(index + 1));
+
+    return {
+        ...state,
+        remote_peers: newPeers
+    }
+}
+
+/**
+ *
+ * @param {AppState} state
+ * @param action
+ * @return AppState
+ */
+function toggleScreenShare(state, action) {
+    return {
+        ...state,
+        sharing_screen: !state.sharing_screen
+    }
+}
+
+/**
+ *
+ * @param {AppState} state
+ * @param action
+ * @return AppState
+ */
+function setUserVideo(state, action) {
+    let currentStream = state.user_video_stream;
+    if (state.user_video_element !== null && state.user_video_stream !== null) {
+        const oldTrack = state.user_video_stream.getVideoTracks()[0]
+        const newTrack = action.payload.stream.getVideoTracks()[0];
+        for(let localPeer of state.local_peers) {
+            localPeer.peer.replaceTrack(oldTrack, newTrack, state.user_video_stream);
+        }
+    } else {
+        currentStream = action.payload.stream;
+    }
+
+    return {
+        ...state,
+        user_video_stream: currentStream,
+        user_video_element: action.payload.element
+    };
+}
+
+/**
+ *
+ * @param {AppState} state
+ * @param action
+ * @return AppState
+ */
+function setRemotePeerVideoStream(state, action) {
+    const peer = state.remote_peers.find((p) => p.id === action.payload.id);
+    const index = state.remote_peers.indexOf(peer);
+
+    const newPeers = state.remote_peers
+        .slice(0, index)
+        .concat([{
+            ...peer,
+            videoStream: action.payload.stream,
+            has_video_stream: true
+        }])
+        .concat(state.remote_peers.slice(index + 1));
+
+    return {
+        ...state,
+        remote_peers: newPeers
+    }
+}
+
+/**
+ *
+ * @param {AppState} state
+ * @param action
  * @returns AppState
  */
 export function appReducer(state, action) {
     console.log(action.type)
     switch(action.type) {
+        case TOGGLE_SCREEN_SHARE:
+            return toggleScreenShare(state, action);
+
+        case REMOVE_REMOTE_PEER:
+            return removeRemotePeer(state, action);
+
         case JOIN_MEETING:
             return joinMeeting(state, action);
 
@@ -154,23 +266,7 @@ export function appReducer(state, action) {
             return setAnswerAnswered(state, action);
 
         case SET_OFFER_SIGNALED:
-            return (() => {
-                const peer = state.remote_peers.find((p) => p.id === action.payload);
-                const index = state.remote_peers.indexOf(peer);
-
-                const newPeers = state.remote_peers
-                    .slice(0, index)
-                    .concat([{
-                        ...peer,
-                        offer_signaled: true
-                    }])
-                    .concat(state.remote_peers.slice(index + 1));
-
-                return {
-                    ...state,
-                    remote_peers: newPeers
-                }
-            })();
+            return setOfferSignaled(state, action);
 
         case SET_PEER_VIDEO_ELEMENT:
             return (() => {
@@ -216,24 +312,7 @@ export function appReducer(state, action) {
             })();
 
         case SET_REMOTE_PEER_VIDEO_STREAM:
-            return (() => {
-                const peer = state.remote_peers.find((p) => p.id === action.payload.id);
-                const index = state.remote_peers.indexOf(peer);
-
-                const newPeers = state.remote_peers
-                    .slice(0, index)
-                    .concat([{
-                        ...peer,
-                        videoStream: action.payload.stream,
-                        has_video_stream: true
-                    }])
-                    .concat(state.remote_peers.slice(index + 1));
-
-                return {
-                    ...state,
-                    remote_peers: newPeers
-                }
-            })();
+            return setRemotePeerVideoStream(state, action);
 
         case SET_REMOTE_PEERS:
             return (() => {
@@ -257,11 +336,7 @@ export function appReducer(state, action) {
             }
 
         case SET_USER_VIDEO:
-            return {
-                ...state,
-                user_video_stream: action.payload.stream,
-                user_video_element: action.payload.element
-            };
+            return setUserVideo(state, action);
 
         case SET_MEETING_ID:
             return {

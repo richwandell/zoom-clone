@@ -11,6 +11,11 @@ class Disconnect extends ClientAction {
         console.log('disconnect')
         this.removeNonMeetingClient();
         if (this.inMeeting()) {
+            for(let peerClient of this.meeting.participants) {
+                peerClient.emit('disconnected', {
+                    id: this.client.id
+                })
+            }
             this.state.removeFromMeeting(this.client);
         }
     }

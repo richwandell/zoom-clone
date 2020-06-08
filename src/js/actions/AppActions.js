@@ -1,12 +1,12 @@
 import {
     JOIN_MEETING,
-    REMOTE_PEER_ANSWERED, REMOTE_PEER_OFFERED,
+    REMOTE_PEER_ANSWERED, REMOTE_PEER_OFFERED, REMOVE_REMOTE_PEER,
     SERVER_CONNECTED, SET_ANSWER_ANSWERED,
     SET_LOCAL_PEER,
     SET_MEETING_ID, SET_OFFER_SIGNALED, SET_PEER_CONNECTION, SET_PEER_CONNECTIONS, SET_PEER_VIDEO_ELEMENT,
     SET_REMOTE_PEER_VIDEO_STREAM,
     SET_REMOTE_PEERS,
-    SET_USER_VIDEO
+    SET_USER_VIDEO, TOGGLE_SCREEN_SHARE
 } from "../constants";
 
 export function serverConnected(id, socket) {
@@ -59,4 +59,12 @@ export function setOfferSignaled(id) {
 
 export function joinMeeting(participantIds) {
     return {type: JOIN_MEETING, payload: participantIds};
+}
+
+export function removeRemotePeer(id) {
+    return {type: REMOVE_REMOTE_PEER, payload: id};
+}
+
+export function toggleScreenShare() {
+    return {type: TOGGLE_SCREEN_SHARE};
 }

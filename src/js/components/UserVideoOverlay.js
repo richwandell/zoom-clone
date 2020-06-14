@@ -33,18 +33,38 @@ export default function UserVideoOverlay(props) {
         if (state.user_video_stream === null) return;
         console.log("starting")
 
+        function run() {
+            (async () => {
+                const results = await faceapi.mtcnn(state.user_video_element, mtcnnForwardParams);
+                if (results.length > 0) {
+                    /**
+                     * @type {CanvasRenderingContext2D} ctx
+                     */
+                    const ctx = ref.current.getContext("2d")
 
-        async function run() {
-            const results = await faceapi.mtcnn(state.user_video_element, mtcnnForwardParams);
-            if (results.length > 0) {
+                    ctx.clearRect(0, 0, ref.current.width, ref.current.height);
 
-            }
+                    // for (let item of results) {
+                    //     console.log(results)
+                    //     const rect = item.alignedRect;
+                    //     const {x, y, width, height} = rect.box;
+                    //     console.log(x, y, width, height)
+                    //     ctx.strokeRect
+                    // }
+                    faceapi.draw.drawDetections(ref.current, results);
+                    faceapi.draw.drawFaceLandmarks(ref.current, results);
+                    faceapi.draw.drawFaceExpressions(ref.current, results);
+
+                }
+            })();
+            setRect(state.user_video_element.getBoundingClientRect());
+
             requestAnimationFrame(run);
         }
 
         requestAnimationFrame(run);
 
-        setRect(state.user_video_element.getBoundingClientRect());
+
 
     }, [state.user_video_stream])
 
@@ -57,6 +77,10 @@ export default function UserVideoOverlay(props) {
     }
 
     return (
-        <canvas style={style} ref={ref} id={"user-video-overlay"}/>
+        <canvas
+            width={state.user_video_element?.videoWidth}
+            height={state.user_video_element?.videoHeight}
+            style={style}
+            ref={ref} id={"user-video-overlay"}/>
     )
 };
